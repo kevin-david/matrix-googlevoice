@@ -225,6 +225,9 @@ class MailListener extends EventEmitter {
    parseUnread() {
       let self = this
       self.imap.search(self.searchFilter, (err, results) => {
+         if (results.length === 0) {
+            self.emit('no_results');
+         }
          if (err) { self.emit('error', err); }
          else if (results.length > 0) {
             async.each(results, (result, callback) => {
@@ -257,7 +260,7 @@ const startNewMailClient = () => {
       username: config.gmailId, password: config.gmailPw, host: 'imap.gmail.com',
       port: 993, tls: true, tlsOptions: { servername: 'imap.gmail.com' },
       connTimeout: 10000, authTimeout: 5000,
-      mailbox: "INBOX",
+      mailbox: config.imapSearchFolder || "INBOX",
       searchFilter: [
          ['UNSEEN'],
          ['or', ['FROM', 'txt.voice.google.com'], ['FROM', 'voice-noreply@google.com']],
@@ -271,7 +274,9 @@ const startNewMailClient = () => {
    });
 
    mailClient.start();
-
+   mailClient.on("no_results", () => {
+      Log("GMAIL: No new emails found.", Yellow);
+   });
    mailClient.on("mail", async (from, text, subject) => {
       Log(`GMAIL (in): ${JP({ text, from, subject })}`, Red);
       let data = { msgtype: 'm.text' }
