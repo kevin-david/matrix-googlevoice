@@ -27,6 +27,8 @@ _**PLEASE NOTE** this is a draft adapted from my own use, so I may have left out
 ## Setup
 
 1.  In **Google Voice > Settings > Messages,** make sure **Forward messages to email** is ON.
+    1.  You may wish to archive these so they do not clutter your inbox using a Gmail inbox rule/filter.
+    2.  `Matches: from:(*@txt.voice.google.com OR voice-noreply@google.com)` >> **Do this:** `Skip Inbox`
 2.  Create a new account for your bot on your any Matrix server (e.g., matrix.org or a homeserver), then get the bot's `access_token`. (The simplest way to do this is using [Element](https://element.io/). Instructions [here](https://t2bot.io/docs/access_tokens/).)
 3.  You must send the replies _from your own Gmail account_, so this requires authenticating your Gmail. So generate an **App Password** for Gmail. (Instructions [here](https://support.google.com/accounts/answer/185833).)
 4.  You can run this bot on any machine with Internet and `node` – your homeserver, laptop, Pi, whatever. 
@@ -65,6 +67,9 @@ Some other things the bot can do:
 
 ## Changelog
 
+#### 2024-04-08
+* Fixed texts from short codes
+* Added support for customized folder. This
 #### 2022-04-19
 * Fixed mail client multiple connection [issue](https://github.com/dzg/matrix-googlevoice/issues/1)
 #### 2022-03-17
