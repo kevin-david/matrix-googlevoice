@@ -279,34 +279,31 @@ const startNewMailClient = () => {
    });
    mailClient.on("mail", async (from, text, subject) => {
       Log(`GMAIL (in): ${JP({ text, from, subject })}`, Red);
-      let data = { msgtype: 'm.text' }
-      let bodytxt = text
-         .replace(/.*<https:\/\/voice\.google\.com>/im, '')
-         .replace(/(To respond to this text message, reply to this email or visit Google Voice|YOUR ACCOUNT <https:\/\/voice\.google\.com>)(.|\n)*/m, '')
-         .replace(/(To respond to this message, launch Google Voice)(.|\n)*/m, '')
-         .replace(/Hello.*\n/, '').trim()
+      let data = { msgtype: 'm.text' };
+      let bodytxt = text.replace(/[\s\S]*\n<https:\/\/voice\.google\.com>\n([\s\S]*?)(?:\nTo respond to this[\s\S]*?\.)?\nYOUR ACCOUNT <https:\/\/voice\.google\.com>[\s\S]*/i, '$1').trim();
 
       if (from.address.startsWith('voice-noreply@google.com')) {
-         if (subject.startsWith("New text message from")) { // Handle 2FA / short codes
-            let name = subject.replace("New text message from ", "")
+         if (subject.startsWith("New text message from")) {
+            // Handle 2FA / short codes
+            let name = subject.replace("New text message from ", "");
             from = {
                name: name,
                address: `${botNotifyRoom}_${name.replace(' ', '_')}`
-            }
+            };
          } else {
             from = {
                name: config.matrixBotName,
                address: `${botNotifyRoom}`
-            }
-            data.formatted_body = `<h5>${subject}</h5>` + body.replace('\n\n', '<br>').replace(/^(.*)\n<(http.*)>/gm, '<br>🔗 <code><a href="$2">$1</a></code>').trim()
+            };
+            data.formatted_body = `<h5>${subject}</h5>` + bodytxt.replace('\n\n', '<br>')
+               .replace(/^(.*)\n<(http.*)>/gm, '<br>🔗 <code><a href="$2">$1</a></code>').trim();
             data.format = "org.matrix.custom.html";
          }
-         bodytxt = `${subject}\n\n${body}`
       }
-      data.body = bodytxt.replace(/([a-z])\n/g, '$1 ')
-      Log(`MSG: ${JP(data)}`, Magenta)
-      matrixSendMessage(from, data)
-   })
+      data.body = bodytxt.replace(/([a-z])\n/g, '$1 ');
+      Log(`MSG: ${JP(data)}`, Magenta);
+      matrixSendMessage(from, data);
+   });
 
    mailClient.on("server", async (status) => {
       if (status == 'connected') {
