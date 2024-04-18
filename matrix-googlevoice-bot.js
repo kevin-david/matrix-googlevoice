@@ -1,7 +1,3 @@
-/**
- * @ Modified time: 2023-10-08 20:31:13
- */
-
 const config = require('./config.js')
 const botNotifyRoom = `${config.matrixBotId.split(':')[0]}-${config.aliasSuffix}`
 const [Black, Red, Green, Yellow, Blue, Magenta, Cyan, White] = ["\x1b[30m", "\x1b[31m", "\x1b[32m", "\x1b[33m", "\x1b[34m", "\x1b[35m", "\x1b[36m", "\x1b[37m"]
@@ -77,13 +73,17 @@ const matrixSendMessage = async (from, data) => {
    matrixClient.sendMessage(room, data);
 }
 
-const matrixNotify = (text, color, emoji = '🤖') => {
-   matrixSendMessage({ address: `${botNotifyRoom}`, name: config.matrixBotName },
-      {
-         body: body = `${emoji} <code>${text}</code>`,
-         formatted_body: body, msgtype: 'm.notice', format: "org.matrix.custom.html"
-      });
-   Log(text, color);
+const matrixNotify = async (text, color, emoji = '🤖') => {
+   try {
+      await matrixSendMessage({ address: `${botNotifyRoom}`, name: config.matrixBotName },
+         {
+            body: body = `${emoji} <code>${text}</code>`,
+            formatted_body: body, msgtype: 'm.notice', format: "org.matrix.custom.html"
+         });
+      Log(text, color);
+   } catch (error) {
+      console.error('Error in matrixNotify:', error);
+   }
 }
 
 const getAvatarUrl = async (url) => {
@@ -284,12 +284,24 @@ const startNewMailClient = () => {
 
       if (from.address.startsWith('voice-noreply@google.com')) {
          if (subject.startsWith("New text message from")) {
-            // Handle 2FA / short codes
-            let name = subject.replace("New text message from ", "");
-            from = {
-               name: name,
-               address: `${botNotifyRoom}_${name.replace(' ', '_')}`
-            };
+            // Extract the number from the subject line
+            let numberMatch = subject.match(/(\d+)$/);
+            if (numberMatch) {
+               let number = numberMatch[1];
+               from = {
+                  name: number,
+                  address: `${botNotifyRoom}_${number}`
+               };
+            } else {
+               // Handle the case when the number is not found in the subject line
+               from = {
+                  name: config.matrixBotName,
+                  address: `${botNotifyRoom}`
+               };
+               data.formatted_body = `<h5>${subject}</h5>` + bodytxt.replace('\n\n', '<br>')
+                  .replace(/^(.*)\n<(http.*)>/gm, '<br>🔗 <code><a href="$2">$1</a></code>').trim();
+               data.format = "org.matrix.custom.html";
+            }
          } else {
             from = {
                name: config.matrixBotName,
@@ -315,11 +327,9 @@ const startNewMailClient = () => {
    });
 
    mailClient.on("error", (err) => {
-      matrixNotify(`GMAIL ${err}\nAttempting reconnection in 10s...`, Yellow, '⚠️').catch((notifyErr) => {
-         console.error(notifyErr)
-      })  /// added
+      matrixNotify(`GMAIL ${err}\nAttempting reconnection in 10s...`, Yellow, '⚠️');
       mailClient.stop();
-      // setTimeout(startNewMailClient, 1000 * 10);
+      setTimeout(startNewMailClient, 1000 * 10);
    });
 
    mailClient.on("attachment", async (from, att) => {
