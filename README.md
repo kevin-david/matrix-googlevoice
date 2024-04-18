@@ -27,6 +27,8 @@ _**PLEASE NOTE** this is a draft adapted from my own use, so I may have left out
 ## Setup
 
 1.  In **Google Voice > Settings > Messages,** make sure **Forward messages to email** is ON.
+    1.  You may wish to archive these so they do not clutter your inbox using a Gmail inbox rule/filter.
+    2.  `Matches: from:(*@txt.voice.google.com OR voice-noreply@google.com)` >> **Do this:** `Skip Inbox`
 2.  Create a new account for your bot on your any Matrix server (e.g., matrix.org or a homeserver), then get the bot's `access_token`. (The simplest way to do this is using [Element](https://element.io/). Instructions [here](https://t2bot.io/docs/access_tokens/).)
 3.  You must send the replies _from your own Gmail account_, so this requires authenticating your Gmail. So generate an **App Password** for Gmail. (Instructions [here](https://support.google.com/accounts/answer/185833).)
 4.  You can run this bot on any machine with Internet and `node` – your homeserver, laptop, Pi, whatever. 
@@ -37,6 +39,7 @@ _**PLEASE NOTE** this is a draft adapted from my own use, so I may have left out
     -  Edit `config.js` with your parameters. See comments there for more info.
     -  Run `node matrix-googlevoice-bot.js` 
     -  Set it up to always run using your preferred method.
+       -  This will depend on your operating system, but an example way to do this is using `./service.sh`
 
 #### Notes
 
@@ -50,7 +53,7 @@ Some other things the bot can do:
 *   `!name <string>` Set room name
 *   `!botname <string>` Set bot name (in all rooms)
 *   `!botnick <string>` Set bot nickname (in current room)
-*   `!avatar <mxc or http URL>` Set room & bot room avatar to linked image (like a photo of the contact.) Example: 
+*   `!avatar <mxc or http URL>` Set room & bot room avatar to linked image (like a photo of the contact.) Example:
     `!avatar https://play-lh.googleusercontent.com/Gf8ufuFbtfXO5Y6JuZjnG0iIpZh21zNTqZ5aiAXO8mA38mvXzY-1s27FWbGlp51paQ`
 *   `!show <mxc URL>` Display content of an MXC URL
 *   `!restart` Restart IMAP & Matrix connections
@@ -64,6 +67,10 @@ Some other things the bot can do:
 
 ## Changelog
 
+#### 2024-04-18
+* Fixed texts from short codes
+* Added support for customized `imapSearchFolder` folder. This is helpful when Google Voice emails are set to auto archive (with a Gmail Filter)
+* Bug fixes
 #### 2022-04-19
 * Fixed mail client multiple connection [issue](https://github.com/dzg/matrix-googlevoice/issues/1)
 #### 2022-03-17

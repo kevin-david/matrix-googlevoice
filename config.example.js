@@ -25,5 +25,8 @@ module.exports = {
    },
    imapLogging: true, // Log IMAP events to console?
    imapNoopLogging: false, // Log IMAP NOOP to console?
-   aliasSuffix: '' // NOT WORKING, leave blank for now (optional string to append to all room aliases, effectively creating all new rooms)
+   aliasSuffix: '', // NOT WORKING, leave blank for now (optional string to append to all room aliases, effectively creating all new rooms)
+
+   // Change default folder to search for messages. Useful if you auto archive google voice emails
+   imapSearchFolder: 'INBOX', //Archived folder is '[Gmail]/All Mail',
 }
