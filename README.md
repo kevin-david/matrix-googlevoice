@@ -67,9 +67,10 @@ Some other things the bot can do:
 
 ## Changelog
 
-#### 2024-04-08
+#### 2024-04-18
 * Fixed texts from short codes
-* Added support for customized folder. This
+* Added support for customized `imapSearchFolder` folder. This is helpful when Google Voice emails are set to auto archive (with a Gmail Filter)
+* Bug fixes
 #### 2022-04-19
 * Fixed mail client multiple connection [issue](https://github.com/dzg/matrix-googlevoice/issues/1)
 #### 2022-03-17
